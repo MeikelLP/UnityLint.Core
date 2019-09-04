@@ -1,0 +1,10 @@
+<UXML xmlns="UnityEngine.UIElements">
+    <VisualElement name="container">
+        <VisualElement name="main">
+            <VisualElement name="nav"/>
+            <VisualElement name="items"/>
+        </VisualElement>
+        <VisualElement name="sidebar">
+        </VisualElement>
+    </VisualElement>
+</UXML>

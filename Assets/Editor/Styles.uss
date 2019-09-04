@@ -1,0 +1,21 @@
+#container {
+    flex-direction: row;
+    justify-content: space-between;
+}
+
+#nav {
+    flex-direction: row;
+}
+
+#sidebar Button {
+    /*-unity-text-align: middle-right;*/
+}
+
+#items Button {
+    -unity-text-align: middle-left;
+}
+
+Button.is-active {
+    background-color: #595959;
+    color: whitesmoke;
+}
