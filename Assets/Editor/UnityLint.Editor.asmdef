@@ -1,3 +1,18 @@
-﻿{
-	"name": "UnityLint.Editor"
+{
+    "name": "UnityLint.Editor",
+    "references": [
+        "GUID:915c018561be142f7977cb41b348f5d9",
+        "GUID:d9f87ea193e594d8385581441e283655"
+    ],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
 }

@@ -1,6 +1,5 @@
 {
   "dependencies": {
-    "jillejr.newtonsoft.json-for-unity": "12.0.1",
     "com.unity.collab-proxy": "1.2.16",
     "com.unity.ext.nunit": "1.0.0",
     "com.unity.ide.rider": "1.1.0",
@@ -9,6 +8,8 @@
     "com.unity.textmeshpro": "2.0.1",
     "com.unity.timeline": "1.1.0",
     "com.unity.ugui": "1.0.0",
+    "com.unity.code-analysis": "0.1.0-preview.2",
+    "jillejr.newtonsoft.json-for-unity": "12.0.1",
     "com.unity.modules.ai": "1.0.0",
     "com.unity.modules.androidjni": "1.0.0",
     "com.unity.modules.animation": "1.0.0",
@@ -42,10 +43,12 @@
     "com.unity.modules.xr": "1.0.0"
   },
   "scopedRegistries": [
-  {
+    {
       "name": "Packages from jillejr",
       "url": "https://registry.npmjs.org/",
-      "scopes": ["jillejr"]
+      "scopes": [
+        "jillejr"
+      ]
     }
   ]
 }
