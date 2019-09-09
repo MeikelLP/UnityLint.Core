@@ -118,19 +118,6 @@ namespace Editor.Analyzers.Scripting
 
         private void AnalyzersWatcherOnUpdate(object sender, FileSystemEventArgs e)
         {
-            try
-            {
-                var jsonObj = JsonConvert.DeserializeObject<PackageManifest>(e.FullPath);
-                if (jsonObj.Dependencies.ContainsKey("com.unity.code-analysis"))
-                {
-//                    _unityCsprojUpdater.();
-                }
-            }
-            catch (Exception exception)
-            {
-                Console.WriteLine(exception);
-                throw;
-            }
             LintingEngine.EnqueueOnUnityThread(ScanForAnalyzers);
             LintingEngine.EnqueueOnUnityThread(CompilationPipeline.RequestScriptCompilation);
         }
