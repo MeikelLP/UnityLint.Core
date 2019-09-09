@@ -1,0 +1,2 @@
+-r:Library\PackageCache\com.unity.code-analysis@0.1.0-preview.2\Plugins\Microsoft.CodeAnalysis.dll
+-analyzer:Analyzers\Analyzers.dll

@@ -12,7 +12,6 @@ namespace Editor.Analyzers
         public int IssueCount { get; }
         public void GetVisualElement(VisualElement parent)
         {
-
             parent.Add(new Label("TODO"));
         }
     }
