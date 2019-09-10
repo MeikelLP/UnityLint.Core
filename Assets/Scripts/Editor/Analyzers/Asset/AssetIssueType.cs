@@ -1,6 +1,6 @@
-namespace Editor.Analyzers.Project
+namespace Editor.Analyzers.Asset
 {
-    public enum ProjectIssueType
+    public enum AssetIssueType
     {
         Info = 0,
         Suggestion = 1,

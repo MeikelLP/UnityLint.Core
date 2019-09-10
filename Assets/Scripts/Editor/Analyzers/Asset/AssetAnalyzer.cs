@@ -2,19 +2,19 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
-using Editor.Extensions;
+using Editor.Analyzers.Asset.Extensions;
 using UnityEditor;
 using UnityEngine.UIElements;
 
-namespace Editor.Analyzers.Project
+namespace Editor.Analyzers.Asset
 {
-    public class ProjectAnalyzer : IAnalyzer
+    public class AssetAnalyzer : IAnalyzer
     {
         private const string ROW_UXML_GUID = "260ea58151f34b09b9f2c51c198d96e1";
         private const string HEADER_UXML_GUID = "2f7c085e117c42ac99abfa2f7613b201";
 
-        private readonly ReadOnlyCollection<IProjectRule> _rules;
-        private readonly List<ProjectIssue> _issues;
+        private readonly ReadOnlyCollection<IAssetRule> _rules;
+        private readonly List<AssetIssue> _issues;
         private readonly VisualTreeAsset _rowTemplate;
         private readonly VisualTreeAsset _headerTemplate;
 
@@ -22,14 +22,14 @@ namespace Editor.Analyzers.Project
 
         public VisualElement RootElement { get; }
 
-        public ProjectAnalyzer()
+        public AssetAnalyzer()
         {
-            _issues = new List<ProjectIssue>();
+            _issues = new List<AssetIssue>();
 
             AllAssetImporter.AssetPathsChanged += AllAssetImporterOnAssetPathsChanged;
-            var instances = TypeCache.GetTypesDerivedFrom<IProjectRule>()
+            var instances = TypeCache.GetTypesDerivedFrom<IAssetRule>()
                 .Select(Activator.CreateInstance)
-                .Cast<IProjectRule>()
+                .Cast<IAssetRule>()
                 .ToArray();
             _rules = Array.AsReadOnly(instances);
 
@@ -43,7 +43,7 @@ namespace Editor.Analyzers.Project
                 .Where(AllAssetImporter.IsProjectAssetAndNotAFolder)
                 .OrderBy(x => x)
                 .ToArray();
-            AnalyzeProject(assetPaths);
+            AnalyzeAssets(assetPaths);
 
             RootElement = new ScrollView(ScrollViewMode.Vertical)
             {
@@ -56,17 +56,17 @@ namespace Editor.Analyzers.Project
 
         private void AllAssetImporterOnAssetPathsChanged(object sender, string[] assetPaths)
         {
-            AnalyzeProject(assetPaths);
+            AnalyzeAssets(assetPaths);
         }
 
-        private void AnalyzeProject(string[] assetPaths)
+        private void AnalyzeAssets(string[] assetPaths)
         {
             _issues.Clear();
             foreach (var path in assetPaths)
             {
                 foreach (var rule in _rules)
                 {
-                    var issue = new ProjectIssue(path);
+                    var issue = new AssetIssue(path);
                     if (!rule.IsValid(issue))
                     {
                         _issues.Add(issue);

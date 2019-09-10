@@ -5,7 +5,7 @@ using System.Linq;
 using UnityEditor;
 using UnityEngine.Assertions;
 
-namespace Editor.Analyzers.Project
+namespace Editor.Analyzers.Asset
 {
     public class AllAssetImporter : AssetPostprocessor
     {

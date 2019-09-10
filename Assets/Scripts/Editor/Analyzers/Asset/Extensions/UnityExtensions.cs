@@ -1,13 +1,12 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using Editor.Analyzers.Project;
 using UnityEditor;
 using UnityEditorInternal;
 using UnityEngine;
 using UnityEngine.UIElements;
 
-namespace Editor.Extensions
+namespace Editor.Analyzers.Asset.Extensions
 {
     public static class UnityExtensions
     {
@@ -30,13 +29,13 @@ namespace Editor.Extensions
                 {typeof(VisualTreeAsset), -1113042662600692791},
             });
 
-        private static readonly ReadOnlyDictionary<ProjectIssueType, long> BuildInIconsForIssueTypes = new ReadOnlyDictionary<ProjectIssueType, long>(
-            new Dictionary<ProjectIssueType, long>
+        private static readonly ReadOnlyDictionary<AssetIssueType, long> BuildInIconsForIssueTypes = new ReadOnlyDictionary<AssetIssueType, long>(
+            new Dictionary<AssetIssueType, long>
             {
-                {ProjectIssueType.Info, 5425037494185492166},
-                {ProjectIssueType.Suggestion, -4603091085154494538},
-                {ProjectIssueType.Warning, -5763820162405496800},
-                {ProjectIssueType.Error, -2005373149481181617},
+                {AssetIssueType.Info, 5425037494185492166},
+                {AssetIssueType.Suggestion, -4603091085154494538},
+                {AssetIssueType.Warning, -5763820162405496800},
+                {AssetIssueType.Error, -2005373149481181617},
             });
 
         public static Texture2D ToIcon(this Type type)
@@ -58,7 +57,7 @@ namespace Editor.Extensions
             return Texture2D.whiteTexture;
         }
 
-        public static Texture2D ToIcon(this ProjectIssueType type)
+        public static Texture2D ToIcon(this AssetIssueType type)
         {
             if (BuildInIconsForIssueTypes.TryGetValue(type, out var localId))
             {
