@@ -11,18 +11,20 @@ namespace Editor.Analyzers.Project
     public class ProjectAnalyzer : IAnalyzer
     {
         private const string ROW_UXML_GUID = "260ea58151f34b09b9f2c51c198d96e1";
+        private const string HEADER_UXML_GUID = "2f7c085e117c42ac99abfa2f7613b201";
 
         private readonly ReadOnlyCollection<IProjectRule> _rules;
-        private readonly IList<ProjectIssue> _errors;
-        private readonly VisualTreeAsset _uxml;
+        private readonly List<ProjectIssue> _issues;
+        private readonly VisualTreeAsset _rowTemplate;
+        private readonly VisualTreeAsset _headerTemplate;
 
-        public int IssueCount => _errors.Count;
+        public int IssueCount => _issues.Count;
 
         public VisualElement RootElement { get; }
 
         public ProjectAnalyzer()
         {
-            _errors = new List<ProjectIssue>();
+            _issues = new List<ProjectIssue>();
 
             AllAssetImporter.AssetPathsChanged += AllAssetImporterOnAssetPathsChanged;
             var instances = TypeCache.GetTypesDerivedFrom<IProjectRule>()
@@ -31,11 +33,15 @@ namespace Editor.Analyzers.Project
                 .ToArray();
             _rules = Array.AsReadOnly(instances);
 
-            var uxmlPath = AssetDatabase.GUIDToAssetPath(ROW_UXML_GUID);
-            _uxml = AssetDatabase.LoadAssetAtPath<VisualTreeAsset>(uxmlPath);
+            var rowTemplatePath = AssetDatabase.GUIDToAssetPath(ROW_UXML_GUID);
+            _rowTemplate = AssetDatabase.LoadAssetAtPath<VisualTreeAsset>(rowTemplatePath);
+
+            var headerTemplatePath = AssetDatabase.GUIDToAssetPath(HEADER_UXML_GUID);
+            _headerTemplate = AssetDatabase.LoadAssetAtPath<VisualTreeAsset>(headerTemplatePath);
 
             var assetPaths = AssetDatabase.GetAllAssetPaths()
                 .Where(AllAssetImporter.IsProjectAssetAndNotAFolder)
+                .OrderBy(x => x)
                 .ToArray();
             AnalyzeProject(assetPaths);
 
@@ -55,21 +61,15 @@ namespace Editor.Analyzers.Project
 
         private void AnalyzeProject(string[] assetPaths)
         {
-            _errors.Clear();
+            _issues.Clear();
             foreach (var path in assetPaths)
             {
                 foreach (var rule in _rules)
                 {
-                    var error = rule.Validate(path);
-                    if (!string.IsNullOrWhiteSpace(error))
+                    var issue = new ProjectIssue(path);
+                    if (!rule.IsValid(issue))
                     {
-                        var issue = new ProjectIssue
-                        {
-                            Message = error,
-                            Type = AssetDatabase.GetMainAssetTypeAtPath(path),
-                            AssetPath = path
-                        };
-                        _errors.Add(issue);
+                        _issues.Add(issue);
                     }
                 }
             }
@@ -80,18 +80,63 @@ namespace Editor.Analyzers.Project
             if (RootElement != null)
             {
                 RootElement.Clear();
-                foreach (var error in _errors)
+
+                var groups = _issues.GroupBy(x => x.Type).OrderBy(x => (int) x.Key).ToArray();
+
+                foreach (var group in groups)
                 {
-                    var row = _uxml.CloneTree()[0];
+                    var items = group.ToArray();
+                    var container = new VisualElement();
 
-                    ((Image) row[0]).image = error.Type.ToIcon();
-                    ((Image) row[0]).tooltip = error.Type.ToString();
+                    var header = _headerTemplate.CloneTree();
+                    var image = header.Q<Image>("icon");
+                    var heading = header.Q<Button>("heading");
 
-                    ((Button) row[1]).text = error.AssetPath;
+                    image.image = group.Key.ToIcon();
+                    heading.text = $"{group.Key.ToString()} ({items.Length.ToString()})";
+                    heading.clickable = new Clickable(() =>
+                    {
+                        if (container.GetClasses().Contains("is-hidden"))
+                        {
+                            container.RemoveFromClassList("is-hidden");
+                        }
+                        else
+                        {
+                            container.AddToClassList("is-hidden");
+                        }
+                    });
 
-                    ((Label) row[2]).text = error.Message;
+                    RootElement.Add(header);
+                    RootElement.Add(container);
 
-                    RootElement.Add(row);
+                    foreach (var issue in items)
+                    {
+                        var row = _rowTemplate.CloneTree()[0];
+
+                        var assetTypeImage = row.Q<Image>("asset-type");
+                        assetTypeImage.image = issue.AssetType.ToIcon();
+                        assetTypeImage.tooltip = issue.AssetType.ToString();
+
+                        var button = row.Q<Button>("button");
+                        button.text = issue.AssetPath.Replace("Assets/", "");
+                        button.tooltip = issue.AssetPath;
+                        button.clickable = new Clickable(() => Selection.activeObject = issue.Asset);
+
+                        var message = row.Q<Label>("message");
+                        message.text = issue.Message;
+
+                        var fix = row.Q<Button>("fix-button");
+                        if (issue.Fix != null)
+                        {
+                            fix.clickable = new Clickable(() => issue.Fix(issue));
+                        }
+                        else
+                        {
+                            fix.visible = false;
+                        }
+
+                        container.Add(row);
+                    }
                 }
             }
         }

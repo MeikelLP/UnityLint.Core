@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using Editor.Analyzers.Project;
 using UnityEditor;
 using UnityEditorInternal;
 using UnityEngine;
@@ -16,7 +17,7 @@ namespace Editor.Extensions
         /// These GUIDs seem to be safe. For example <see cref="AssemblyDefinitionAsset"/> has the same GUID in 2019.2
         /// and 2019.3 (with new UI). It's safe to assume these values won't change.
         /// </summary>
-        private static readonly ReadOnlyDictionary<Type, long> BuildInIcons = new ReadOnlyDictionary<Type, long>(
+        private static readonly ReadOnlyDictionary<Type, long> BuildInIconsForTypes = new ReadOnlyDictionary<Type, long>(
             new Dictionary<Type, long>
             {
                 {typeof(AssemblyDefinitionAsset), -5767812303953593571},
@@ -29,12 +30,37 @@ namespace Editor.Extensions
                 {typeof(VisualTreeAsset), -1113042662600692791},
             });
 
-        /// <summary>
-        /// Use <see cref="UnityEditor.EditorGUIUtility.FindTexture"/> to get a <see cref="UnityEngine.Texture2D"/>.
-        /// </summary>
+        private static readonly ReadOnlyDictionary<ProjectIssueType, long> BuildInIconsForIssueTypes = new ReadOnlyDictionary<ProjectIssueType, long>(
+            new Dictionary<ProjectIssueType, long>
+            {
+                {ProjectIssueType.Info, 5425037494185492166},
+                {ProjectIssueType.Suggestion, -4603091085154494538},
+                {ProjectIssueType.Warning, -5763820162405496800},
+                {ProjectIssueType.Error, -2005373149481181617},
+            });
+
         public static Texture2D ToIcon(this Type type)
         {
-            if (BuildInIcons.TryGetValue(type, out var localId))
+            if (BuildInIconsForTypes.TryGetValue(type, out var localId))
+            {
+                var assets = AssetDatabase.LoadAllAssetsAtPath(BUILT_IN_ASSET_PATH);
+                foreach (var asset in assets)
+                {
+                    if (AssetDatabase.TryGetGUIDAndLocalFileIdentifier(asset, out _, out long id) &&
+                        id == localId &&
+                        asset is Texture2D texture2D)
+                    {
+                        return texture2D;
+                    }
+                }
+            }
+
+            return Texture2D.whiteTexture;
+        }
+
+        public static Texture2D ToIcon(this ProjectIssueType type)
+        {
+            if (BuildInIconsForIssueTypes.TryGetValue(type, out var localId))
             {
                 var assets = AssetDatabase.LoadAllAssetsAtPath(BUILT_IN_ASSET_PATH);
                 foreach (var asset in assets)

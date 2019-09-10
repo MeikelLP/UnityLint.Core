@@ -1,0 +1,6 @@
+<UXML xmlns="UnityEngine.UIElements">
+    <VisualElement class="row">
+        <Image name="icon" class="icon col"/>
+        <Button name="heading" class="is-title col"/>
+    </VisualElement>
+</UXML>

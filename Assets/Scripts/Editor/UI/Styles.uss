@@ -27,3 +27,42 @@ Button.is-active {
     background-color: #595959;
     color: whitesmoke;
 }
+
+.row {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+}
+.row .col {
+    flex: 1;
+}
+.row .col.shrink {
+    flex-shrink: 0;
+    flex-grow: 0.1;
+}
+
+.has-text-middle-center {
+    -unity-text-align: middle-center;
+}
+
+.has-text-middle-left {
+    -unity-text-align: middle-left;
+}
+
+.is-title {
+    -unity-font-style: bold;
+}
+
+.is-2x {
+    font-size: 24px;
+}
+
+.is-hidden {
+    display: none;
+}
+
+Image.icon {
+    flex-shrink: 0;
+    max-width: 16px;
+    height: 16px;
+}
