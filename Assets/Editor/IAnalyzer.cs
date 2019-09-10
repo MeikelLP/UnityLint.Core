@@ -6,6 +6,7 @@ namespace Editor
     public interface IAnalyzer : IDisposable
     {
         int IssueCount { get; }
-        void GetVisualElement(VisualElement parent);
+        VisualElement RootElement { get; }
+        void Update();
     }
 }

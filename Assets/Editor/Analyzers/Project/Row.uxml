@@ -1,0 +1,7 @@
+<UXML xmlns="UnityEngine.UIElements">
+    <VisualElement class="row">
+        <Image class="col"/>
+        <Button class="col"/>
+        <Label class="col"/>
+    </VisualElement>
+</UXML>

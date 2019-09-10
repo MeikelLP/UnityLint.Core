@@ -1,0 +1,4 @@
+<UXML xmlns="UnityEngine.UIElements">
+    <VisualElement name="nav"/>
+    <VisualElement name="items"/>
+</UXML>

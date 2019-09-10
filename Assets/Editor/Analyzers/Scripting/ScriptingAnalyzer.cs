@@ -28,6 +28,7 @@ namespace Editor.Analyzers.Scripting
         public (string File, CompilerMessage[] Messages)[] ScriptAssemblies { get; private set; }
         public string[] AnalyzerAssemblies { get; private set; }
         public int IssueCount => ScriptAssemblies.Sum(x => x.Messages.Length);
+        public VisualElement RootElement { get; }
 
         public string UnityCodeAnalysisPackagePath
         {
@@ -67,6 +68,10 @@ namespace Editor.Analyzers.Scripting
             ToggleAnalyzersWatcher(Directory.Exists(ANALYZERS_DIR));
             _cscUpdater = new CscUpdater(this);
             _unityCsprojUpdater = new UnityCsprojUpdater(this);
+
+            var uxmlPath = AssetDatabase.GUIDToAssetPath("acdfad26f5084a85addd60860e6e78d3");
+            var uxml = AssetDatabase.LoadAssetAtPath<VisualTreeAsset>(uxmlPath);
+            RootElement = uxml.CloneTree();
 
             ScanForAnalyzers();
             Task.Run(LoadMessagesAsync);
@@ -192,19 +197,19 @@ namespace Editor.Analyzers.Scripting
             File.WriteAllText(path, JsonConvert.SerializeObject(messages));
         }
 
-        public void GetVisualElement(VisualElement parent)
+        public void Update()
         {
             if (UnityCodeAnalysisPackagePath == null)
             {
                 var warnLabel =
                     new Label($"You don't have the \"{UNITY_CODE_ANALYSIS_PACKAGE_NAME}\" package installed.");
-                parent.Add(warnLabel);
+                RootElement.Add(warnLabel);
             }
 
-            var nav = new VisualElement {name = "nav"};
-            var items = new VisualElement {name = "items"};
-            parent.Add(nav);
-            parent.Add(items);
+            var nav = RootElement[0];
+            var items = RootElement[1];
+
+            nav.Clear();
 
             for (var i = 0; i < ScriptAssemblies.Length; i++)
             {
@@ -225,10 +230,10 @@ namespace Editor.Analyzers.Scripting
             RefreshList(_navIndex, items, nav);
         }
 
-        private void RefreshList(int index, VisualElement container, VisualElement nav)
+        private void RefreshList(int index, VisualElement items, VisualElement nav)
         {
             var messages = ScriptAssemblies[index].Messages;
-            DrawAssemblyMessages(container, messages);
+            DrawAssemblyMessages(items, messages);
             var buttons = nav.Query<Button>().ToList();
             for (var i = 0; i < buttons.Count; i++)
             {

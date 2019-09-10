@@ -10,6 +10,8 @@ namespace Editor.UI
 {
     public class LintWindow : EditorWindow
     {
+        private const string MAIN_UXML = "bf1be80a2b3784446af4c393ce07c6e7";
+        private const string MAIN_STYLES = "470daf9a6c8a22f4bb4446654b5ffb8e";
         private static LintWindow _window;
         private int sidebarIndex = 0;
         private VisualElement _sidebar;
@@ -30,10 +32,12 @@ namespace Editor.UI
 
         private void OnEnable()
         {
-            var uxml = AssetDatabase.LoadAssetAtPath<VisualTreeAsset>("Assets/Editor/Test.uxml");
+            var uxmlPath = AssetDatabase.GUIDToAssetPath(MAIN_UXML);
+            var uxml = AssetDatabase.LoadAssetAtPath<VisualTreeAsset>(uxmlPath);
             uxml.CloneTree(rootVisualElement);
 
-            var styleSheet = AssetDatabase.LoadAssetAtPath<StyleSheet>("Assets/Editor/Styles.uss");
+            var stylePath = AssetDatabase.GUIDToAssetPath(MAIN_STYLES);
+            var styleSheet = AssetDatabase.LoadAssetAtPath<StyleSheet>(stylePath);
             rootVisualElement.styleSheets.Add(styleSheet);
 
             _main = rootVisualElement.Q<VisualElement>("main");
@@ -71,7 +75,11 @@ namespace Editor.UI
             }
 
             _main.Clear();
-            LintingEngine.Analyzers[index].GetVisualElement(_main);
+
+            var analyzer = LintingEngine.Analyzers[index];
+            var elem = analyzer.RootElement;
+            _main.Add(elem);
+            analyzer.Update();
         }
     }
 }

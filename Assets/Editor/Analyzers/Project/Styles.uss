@@ -1,0 +1,22 @@
+#project-issues {
+    display: flex;
+}
+
+.row {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+}
+.row .col {
+    flex: 1;
+}
+.row Image.col {
+    flex-shrink: 0;
+    max-width: 16px;
+    height: 16px;
+}
+
+.row Label.col,
+.row Button.col {
+    -unity-text-align: middle-left;
+}

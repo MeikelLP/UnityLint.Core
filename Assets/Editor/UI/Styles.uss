@@ -3,6 +3,14 @@
     justify-content: space-between;
 }
 
+#main {
+    flex-grow: 1;
+}
+
+#sidebar {
+    flex-shrink: 0;
+}
+
 #nav {
     flex-direction: row;
 }
