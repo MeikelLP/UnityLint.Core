@@ -4,7 +4,9 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using Editor.Analyzers.Asset.Extensions;
 using UnityEditor;
+using UnityEngine;
 using UnityEngine.UIElements;
+using Object = UnityEngine.Object;
 
 namespace Editor.Analyzers.Asset
 {
@@ -12,9 +14,10 @@ namespace Editor.Analyzers.Asset
     {
         private const string ROW_UXML_GUID = "260ea58151f34b09b9f2c51c198d96e1";
         private const string HEADER_UXML_GUID = "2f7c085e117c42ac99abfa2f7613b201";
+        private const string STYLE_SHEET_GUID = "ce5902e5af4941fcacb06882d1d2e24e";
 
         private readonly ReadOnlyCollection<IAssetRule> _rules;
-        private readonly List<AssetIssue> _issues;
+        private readonly List<IAssetIssue<Object>> _issues;
         private readonly VisualTreeAsset _rowTemplate;
         private readonly VisualTreeAsset _headerTemplate;
 
@@ -24,10 +27,11 @@ namespace Editor.Analyzers.Asset
 
         public AssetAnalyzer()
         {
-            _issues = new List<AssetIssue>();
+            _issues = new List<IAssetIssue<Object>>();
 
             AllAssetImporter.AssetPathsChanged += AllAssetImporterOnAssetPathsChanged;
             var instances = TypeCache.GetTypesDerivedFrom<IAssetRule>()
+                .Where(x => !x.IsAbstract)
                 .Select(Activator.CreateInstance)
                 .Cast<IAssetRule>()
                 .ToArray();
@@ -49,7 +53,7 @@ namespace Editor.Analyzers.Asset
             {
                 name = "project-issues"
             };
-            var stylesheetPath = AssetDatabase.GUIDToAssetPath("ce5902e5af4941fcacb06882d1d2e24e");
+            var stylesheetPath = AssetDatabase.GUIDToAssetPath(STYLE_SHEET_GUID);
             var stylesheet = AssetDatabase.LoadAssetAtPath<StyleSheet>(stylesheetPath);
             RootElement.styleSheets.Add(stylesheet);
         }
@@ -66,8 +70,7 @@ namespace Editor.Analyzers.Asset
             {
                 foreach (var rule in _rules)
                 {
-                    var issue = new AssetIssue(path);
-                    if (!rule.IsValid(issue))
+                    if (rule.HasIssue(path, out var issue))
                     {
                         _issues.Add(issue);
                     }
@@ -124,16 +127,7 @@ namespace Editor.Analyzers.Asset
 
                         var message = row.Q<Label>("message");
                         message.text = issue.Message;
-
-                        var fix = row.Q<Button>("fix-button");
-                        if (issue.Fix != null)
-                        {
-                            fix.clickable = new Clickable(() => issue.Fix(issue));
-                        }
-                        else
-                        {
-                            fix.visible = false;
-                        }
+                        message.tooltip = issue.Message;
 
                         container.Add(row);
                     }
