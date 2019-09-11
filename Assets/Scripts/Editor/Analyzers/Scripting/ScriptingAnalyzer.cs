@@ -230,6 +230,7 @@ namespace Editor.Analyzers.Scripting
             RefreshList(_navIndex, items, nav);
         }
 
+
         private void RefreshList(int index, VisualElement items, VisualElement nav)
         {
             var messages = ScriptAssemblies[index].Messages;

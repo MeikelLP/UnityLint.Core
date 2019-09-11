@@ -1,0 +1,8 @@
+{
+  "Settings": [
+    {
+      "maxFileSize": 2097152,
+      "#type": "Editor.Analyzers.Asset.AssetAnalyzerSettings"
+    }
+  ]
+}

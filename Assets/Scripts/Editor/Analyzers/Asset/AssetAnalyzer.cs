@@ -3,8 +3,8 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using Editor.Analyzers.Asset.Extensions;
+using Microsoft.Extensions.DependencyInjection;
 using UnityEditor;
-using UnityEngine;
 using UnityEngine.UIElements;
 using Object = UnityEngine.Object;
 
@@ -25,14 +25,14 @@ namespace Editor.Analyzers.Asset
 
         public VisualElement RootElement { get; }
 
-        public AssetAnalyzer()
+        public AssetAnalyzer(IServiceProvider serviceProvider)
         {
             _issues = new List<IAssetIssue<Object>>();
 
             AllAssetImporter.AssetPathsChanged += AllAssetImporterOnAssetPathsChanged;
             var instances = TypeCache.GetTypesDerivedFrom<IAssetRule>()
                 .Where(x => !x.IsAbstract)
-                .Select(Activator.CreateInstance)
+                .Select(x => ActivatorUtilities.CreateInstance(serviceProvider, x))
                 .Cast<IAssetRule>()
                 .ToArray();
             _rules = Array.AsReadOnly(instances);
