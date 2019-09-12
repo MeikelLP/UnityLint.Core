@@ -74,7 +74,6 @@ namespace Editor.Analyzers.Scripting
             RootElement = uxml.CloneTree();
 
             ScanForAnalyzers();
-            Task.Run(LoadMessagesAsync);
         }
 
         private void ToggleAnalyzersWatcher(bool toggle)
@@ -138,11 +137,6 @@ namespace Editor.Analyzers.Scripting
 
                 var path = Path.GetFileNameWithoutExtension(file) ?? throw new ArgumentNullException(nameof(file));
                 ScriptAssemblies[i] = (path, json);
-
-                if (json.Length == 0)
-                {
-                    File.Delete(file);
-                }
             }
         }
 
@@ -199,6 +193,7 @@ namespace Editor.Analyzers.Scripting
 
         public void Update()
         {
+            Task.Run(LoadMessagesAsync).Wait();
             if (UnityCodeAnalysisPackagePath == null)
             {
                 var warnLabel =
@@ -227,7 +222,10 @@ namespace Editor.Analyzers.Scripting
                 nav.Add(elem);
             }
 
-            RefreshList(_navIndex, items, nav);
+            if (ScriptAssemblies.Length > 0)
+            {
+                RefreshList(_navIndex, items, nav);
+            }
         }
 
 

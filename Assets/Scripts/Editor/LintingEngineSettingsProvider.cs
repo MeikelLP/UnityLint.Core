@@ -29,12 +29,21 @@ namespace Editor
                 try
                 {
                     Settings = DeserializeFromString(json);
+
+                    var toAdd = analyzerSettingTypes
+                        .Where(x => !Settings.AnalyzerSettings.Keys.Contains(x.AssemblyQualifiedName))
+                        .ToArray();
+                    foreach (var type in toAdd)
+                    {
+                        if (type.AssemblyQualifiedName == null) continue;
+                        Settings.AnalyzerSettings.Add(type.AssemblyQualifiedName, (IAnalyzerSettings) Activator.CreateInstance(type));
+                    }
                 }
                 catch (Exception e)
                 {
                     Debug.LogException(e);
-                    Debug.LogError("Failed to use " + SETTINGS_ASSET_PATH +
-                                   " Overwriting with default settings file.");
+                    Debug.LogError("Failed to use \"" + SETTINGS_ASSET_PATH +
+                                   "\". Overwriting with default settings file.");
                 }
             }
 
@@ -59,7 +68,8 @@ namespace Editor
 
         private static string SerializeToString(UnityLintSettings obj)
         {
-            return JsonConvert.SerializeObject(obj, new JsonSerializerSettings{
+            return JsonConvert.SerializeObject(obj, new JsonSerializerSettings
+            {
                 Formatting = Formatting.Indented,
                 ReferenceLoopHandling = ReferenceLoopHandling.Ignore
             });
@@ -82,6 +92,7 @@ namespace Editor
                 try
                 {
                     var type = Type.GetType(key);
+                    if (type == null) continue;
                     var jObject = value.ToObject(type);
 
                     settings.AnalyzerSettings.Add(key, (IAnalyzerSettings) jObject);

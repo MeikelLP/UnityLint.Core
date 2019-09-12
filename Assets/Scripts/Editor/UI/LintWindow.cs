@@ -43,9 +43,10 @@ namespace Editor.UI
 
             rootVisualElement.Q<Button>("reanalyze-button").clickable = new Clickable(() =>
             {
-                foreach (var analyzer in LintingEngine.Analyzers)
+                for (var i = 0; i < LintingEngine.Analyzers.Length; i++)
                 {
-                    analyzer.Update();
+                    LintingEngine.Analyzers[i].Update();
+                    RefreshSidebar(i);
                 }
             });
 
@@ -68,6 +69,7 @@ namespace Editor.UI
 
         private void RefreshSidebar(int index)
         {
+            var analyzer = LintingEngine.Analyzers[index];
             var sidebarButtons = _sidebar.Query<Button>().ToList();
             for (var i = 0; i < sidebarButtons.Count; i++)
             {
@@ -79,10 +81,13 @@ namespace Editor.UI
                     sidebarButton.AddToClassList("is-active");
                 }
             }
+            var displayName = analyzer.GetType().GetCustomAttribute<DisplayNameAttribute>()?.DisplayName ??
+                              analyzer.GetType().Name.Replace("Analyzer", "");
+
+            sidebarButtons[index].text = $"{displayName} ({analyzer.IssueCount.ToString()})";
 
             _main.Clear();
 
-            var analyzer = LintingEngine.Analyzers[index];
             var elem = analyzer.RootElement;
             _main.Add(elem);
             analyzer.Update();
