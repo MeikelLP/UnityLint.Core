@@ -11,6 +11,7 @@ namespace Editor.Analyzers.Asset
         public AssetIssueType Type { get; set; }
         public Type AssetType { get; }
         public T Asset { get; }
+        public Func<bool> FixAction { get; set; }
 
         public AssetIssue(string assetPath)
         {

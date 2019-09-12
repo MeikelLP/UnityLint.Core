@@ -138,6 +138,22 @@ namespace Editor.Analyzers.Asset
                         message.text = issue.Message;
                         message.tooltip = issue.Message;
 
+                        var fixButton = row.Q<Button>("fix-button");
+                        if (issue.FixAction != null)
+                        {
+                            fixButton.clickable = new Clickable(() =>
+                            {
+                                if (issue.FixAction())
+                                {
+                                    row.RemoveFromHierarchy();
+                                }
+                            });
+                        }
+                        else
+                        {
+                            fixButton.visible = false;
+                        }
+
                         container.Add(row);
                     }
                 }
