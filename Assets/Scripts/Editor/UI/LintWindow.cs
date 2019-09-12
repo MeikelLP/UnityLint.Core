@@ -39,7 +39,15 @@ namespace Editor.UI
             rootVisualElement.styleSheets.Add(styleSheet);
 
             _main = rootVisualElement.Q<VisualElement>("main");
-            _sidebar = rootVisualElement.Q<VisualElement>("sidebar");
+            _sidebar = rootVisualElement.Q<VisualElement>("sidebar").Q<VisualElement>("analyzers");
+
+            rootVisualElement.Q<Button>("reanalyze-button").clickable = new Clickable(() =>
+            {
+                foreach (var analyzer in LintingEngine.Analyzers)
+                {
+                    analyzer.Update();
+                }
+            });
 
             for (var i = 0; i < LintingEngine.Analyzers.Length; i++)
             {

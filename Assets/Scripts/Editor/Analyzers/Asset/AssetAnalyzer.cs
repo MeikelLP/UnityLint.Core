@@ -43,12 +43,6 @@ namespace Editor.Analyzers.Asset
             var headerTemplatePath = AssetDatabase.GUIDToAssetPath(HEADER_UXML_GUID);
             _headerTemplate = AssetDatabase.LoadAssetAtPath<VisualTreeAsset>(headerTemplatePath);
 
-            var assetPaths = AssetDatabase.GetAllAssetPaths()
-                .Where(AllAssetImporter.IsProjectAssetAndNotAFolder)
-                .OrderBy(x => x)
-                .ToArray();
-            AnalyzeAssets(assetPaths);
-
             RootElement = new ScrollView(ScrollViewMode.Vertical)
             {
                 name = "project-issues"
@@ -66,10 +60,19 @@ namespace Editor.Analyzers.Asset
         private void AnalyzeAssets(string[] assetPaths)
         {
             _issues.Clear();
-            foreach (var path in assetPaths)
+            foreach (var rule in _rules)
             {
-                foreach (var rule in _rules)
+                var baseType = rule.GetType().BaseType;
+                // ReSharper disable once PossibleNullReferenceException
+                var typeFilter = baseType.IsGenericType ?
+                    baseType.GetGenericArguments()[0] :
+                    typeof(Object);
+
+                foreach (var path in assetPaths)
                 {
+                    // filter by asset type
+                    if (!typeFilter.IsAssignableFrom(AssetDatabase.GetMainAssetTypeAtPath(path))) continue;
+
                     if (rule.HasIssue(path, out var issue))
                     {
                         _issues.Add(issue);
@@ -82,6 +85,12 @@ namespace Editor.Analyzers.Asset
         {
             if (RootElement != null)
             {
+                var assetPaths = AssetDatabase.GetAllAssetPaths()
+                    .Where(AllAssetImporter.IsProjectAssetAndNotAFolder)
+                    .OrderBy(x => x)
+                    .ToArray();
+                AnalyzeAssets(assetPaths);
+
                 RootElement.Clear();
 
                 var groups = _issues.GroupBy(x => x.Type).OrderBy(x => (int) x.Key).ToArray();

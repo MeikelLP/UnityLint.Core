@@ -5,6 +5,8 @@
             <VisualElement name="items"/>
         </VisualElement>
         <VisualElement name="sidebar">
+            <Button name="reanalyze-button" text="Reanalyze"/>
+            <VisualElement name="analyzers"/>
         </VisualElement>
     </VisualElement>
 </UXML>

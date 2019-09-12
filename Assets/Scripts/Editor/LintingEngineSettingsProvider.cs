@@ -59,7 +59,10 @@ namespace Editor
 
         private static string SerializeToString(UnityLintSettings obj)
         {
-            return JsonConvert.SerializeObject(obj, Formatting.Indented);
+            return JsonConvert.SerializeObject(obj, new JsonSerializerSettings{
+                Formatting = Formatting.Indented,
+                ReferenceLoopHandling = ReferenceLoopHandling.Ignore
+            });
         }
 
         private static UnityLintSettings DeserializeFromString(string str)
