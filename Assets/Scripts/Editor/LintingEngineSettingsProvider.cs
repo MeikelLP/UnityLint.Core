@@ -2,9 +2,12 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using Editor.Analyzers.Asset;
+using Editor.Extensions;
+using Editor.UI;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using UnityEditor;
+using UnityEngine;
 using UnityEngine.UIElements;
 
 namespace Editor
@@ -12,65 +15,79 @@ namespace Editor
     [InitializeOnLoad]
     public static class LintingEngineSettingsProvider
     {
-        public const string SETTINGS_ASSET_PATH = "ProjectSettings/UnityLint.asset";
+        public const string SETTINGS_ASSET_PATH = "ProjectSettings/UnityLint.json";
         public static UnityLintSettings Settings { get; }
 
         static LintingEngineSettingsProvider()
         {
+            EditorApplication.quitting += SaveSettings;
+            var analyzerSettingTypes = TypeCache.GetTypesDerivedFrom<IAnalyzerSettings>().ToArray();
+
             if (File.Exists(SETTINGS_ASSET_PATH))
             {
                 var json = File.ReadAllText(SETTINGS_ASSET_PATH);
-                Settings = DeserializeFromString(json);
+                try
+                {
+                    Settings = DeserializeFromString(json);
+                }
+                catch (Exception e)
+                {
+                    Debug.LogException(e);
+                    Debug.LogError("Failed to use " + SETTINGS_ASSET_PATH +
+                                   " Overwriting with default settings file.");
+                }
             }
 
             if (Settings == null)
             {
                 Settings = new UnityLintSettings
                 {
-                    Settings = new IAnalyzerSettings[]
-                    {
-                        new AssetAnalyzerSettings()
-                    }
+                    AnalyzerSettings = analyzerSettingTypes
+                        .Select(Activator.CreateInstance)
+                        .Cast<IAnalyzerSettings>()
+                        .ToDictionary(k => k.GetType().AssemblyQualifiedName, v => v)
                 };
-                var str = SerializeToString(Settings);
-                File.WriteAllText(SETTINGS_ASSET_PATH, str);
+                SaveSettings();
             }
+        }
+
+        private static void SaveSettings()
+        {
+            var str = SerializeToString(Settings);
+            File.WriteAllText(SETTINGS_ASSET_PATH, str);
         }
 
         private static string SerializeToString(UnityLintSettings obj)
         {
-            var jObject = JObject.FromObject(obj);
-            var prop = jObject.Property(nameof(UnityLintSettings.Settings));
-            var array = prop.Values().ToArray();
-            for (var i = 0; i < array.Length; i++)
-            {
-                var jToken = array[i];
-                var settingsObj = jToken.Value<JObject>();
-                var typeName = Settings.Settings[i].GetType().FullName;
-                settingsObj.Add("#type", typeName);
-            }
-
-            return jObject.ToString();
+            return JsonConvert.SerializeObject(obj, Formatting.Indented);
         }
 
         private static UnityLintSettings DeserializeFromString(string str)
         {
             var jObj = JObject.Parse(str);
-            var prop = jObj.Property(nameof(UnityLintSettings.Settings));
+            var prop = jObj.Property(nameof(UnityLintSettings.AnalyzerSettings));
             if (prop == null) return null;
 
-            var array = prop.Values().ToArray();
-            var settings = new UnityLintSettings();
-            settings.Settings = new IAnalyzerSettings[array.Length];
-
-            for (var i = 0; i < array.Length; i++)
+            var dict = prop.Value.ToObject<JObject>();
+            var settings = new UnityLintSettings
             {
-                var jObject = array[i].Value<JObject>();
-                var property = jObject.Property("#type");
-                var type = property.Value.Value<string>();
-                property.Remove();
+                AnalyzerSettings = new Dictionary<string, IAnalyzerSettings>()
+            };
 
-                settings.Settings[i] = (IAnalyzerSettings)jObject.ToObject(Type.GetType(type));
+            foreach (var (key, value) in dict)
+            {
+                try
+                {
+                    var type = Type.GetType(key);
+                    var jObject = value.ToObject(type);
+
+                    settings.AnalyzerSettings.Add(key, (IAnalyzerSettings) jObject);
+                }
+                catch (Exception e)
+                {
+                    Debug.LogException(e);
+                    Debug.LogError($"Could not load settings object \"{key}\". Skipping.");
+                }
             }
 
             return settings;
@@ -84,13 +101,6 @@ namespace Editor
                 label = "UnityLint",
                 activateHandler = (searchContext, rootElement) =>
                 {
-                    var title = new Label
-                    {
-                        text = "Custom UI Elements"
-                    };
-                    title.AddToClassList("title");
-                    rootElement.Add(title);
-
                     var properties = new VisualElement
                     {
                         style =
@@ -101,12 +111,27 @@ namespace Editor
                     properties.AddToClassList("property-list");
                     rootElement.Add(properties);
 
-                    var tf = new TextField
+                    foreach (var (key, value) in Settings.AnalyzerSettings)
                     {
-                        value = "Test"
+                        var type = Type.GetType(key);
+                        if (type == null) continue;
+                        var label = new Label(type.Name);
+                        label.style.unityFontStyleAndWeight = new StyleEnum<FontStyle>(FontStyle.Bold);
+                        properties.Add(label);
+                        foreach (var fieldInfo in value.GetType().GetFields())
+                        {
+                            var field = UIUtility.GetField(value, fieldInfo);
+                            properties.Add(field);
+                        }
+                    }
+
+                    var button = new Button(SaveSettings)
+                    {
+                        text = "Save changes now to file",
+                        tooltip =
+                            "Changes won't be saved to file if Unity crashes. You can use this to safe them to file."
                     };
-                    tf.AddToClassList("property-value");
-                    properties.Add(tf);
+                    rootElement.Add(button);
                 },
 
                 // Populate the search keywords to enable smart search filtering and label highlighting:
@@ -115,6 +140,5 @@ namespace Editor
 
             return provider;
         }
-
     }
 }

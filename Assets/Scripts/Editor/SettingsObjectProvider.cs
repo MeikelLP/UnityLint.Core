@@ -1,6 +1,7 @@
 using System;
 using System.Linq;
 using System.Linq.Expressions;
+using Editor.Extensions;
 using Microsoft.Extensions.DependencyInjection;
 using UnityEngine.Assertions;
 
@@ -19,13 +20,13 @@ namespace Editor
 
             Assert.IsNotNull(method, nameof(method) + " != null");
 
-            foreach (var setting in LintingEngineSettingsProvider.Settings.Settings)
+            foreach (var (_, value) in LintingEngineSettingsProvider.Settings.AnalyzerSettings)
             {
-                var genericMethod = method.MakeGenericMethod(setting.GetType());
+                var genericMethod = method.MakeGenericMethod(value.GetType());
 
                 // provider => setting
                 var parameterExpression = Expression.Parameter(typeof(IServiceProvider), "provider");
-                var constant = Expression.Constant(setting, setting.GetType());
+                var constant = Expression.Constant(value, value.GetType());
                 var lambda = Expression.Lambda(constant, parameterExpression);
 
                 // services.AddScoped<IAnalyzerSettings>(provider => settings)

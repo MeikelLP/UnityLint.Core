@@ -1,12 +1,9 @@
 {
-    "name": "UnityLint.Editor",
+    "name": "UnityLint.Anaylzers.Asset",
     "references": [
-        "GUID:915c018561be142f7977cb41b348f5d9",
-        "GUID:d9f87ea193e594d8385581441e283655"
+        "GUID:05b00a9d20a33f74a94d5f727842a0d6"
     ],
-    "includePlatforms": [
-        "Editor"
-    ],
+    "includePlatforms": [],
     "excludePlatforms": [],
     "allowUnsafeCode": false,
     "overrideReferences": false,

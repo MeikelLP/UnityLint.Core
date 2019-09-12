@@ -1,7 +1,9 @@
+using System.Collections.Generic;
+
 namespace Editor
 {
     public class UnityLintSettings
     {
-        public IAnalyzerSettings[] Settings;
+        public Dictionary<string, IAnalyzerSettings> AnalyzerSettings;
     }
 }

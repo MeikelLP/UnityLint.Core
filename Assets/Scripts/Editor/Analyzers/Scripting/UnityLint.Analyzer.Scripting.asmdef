@@ -1,0 +1,15 @@
+{
+    "name": "UnityLint.Analyzer.Scripting",
+    "references": [
+        "GUID:05b00a9d20a33f74a94d5f727842a0d6"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

@@ -1,0 +1,16 @@
+{
+    "name": "UnityLint.Analyzers.Asset.RecommendedRules",
+    "references": [
+        "GUID:05b00a9d20a33f74a94d5f727842a0d6",
+        "GUID:72ae5d66a13ba2645835207766977aa5"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}
