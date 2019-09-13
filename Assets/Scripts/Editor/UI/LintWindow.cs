@@ -55,6 +55,7 @@ namespace Editor.UI
                 var analyzer = LintingEngine.Analyzers[i];
                 var displayName = analyzer.GetType().GetCustomAttribute<DisplayNameAttribute>()?.DisplayName ??
                                   analyzer.GetType().Name.Replace("Analyzer", "");
+                analyzer.Update();
                 var localIndex = i;
                 var button = new Button
                 {

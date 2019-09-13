@@ -1,7 +1,5 @@
 <UXML xmlns="UnityEngine.UIElements">
     <VisualElement class="row">
-        <Image name="asset-type" class="col icon"/>
-        <Button name="button" class="col has-text-middle-left"/>
         <Label name="message" class="col has-text-middle-left"/>
         <Button name="fix-button" class="col is-narrow" text="FIX"/>
     </VisualElement>

@@ -188,7 +188,11 @@ namespace Editor.Analyzers.Scripting
             }
 
             var path = Path.Combine(LogDirectory, Path.GetFileNameWithoutExtension(assemblyName) + LOG_FILE_EXTENSIONS);
-            File.WriteAllText(path, JsonConvert.SerializeObject(messages));
+            File.WriteAllText(path, JsonConvert.SerializeObject(messages, new JsonSerializerSettings
+            {
+                ReferenceLoopHandling = ReferenceLoopHandling.Ignore,
+                Formatting = Formatting.Indented
+            }));
         }
 
         public void Update()

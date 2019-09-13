@@ -1,4 +1,5 @@
 using System.IO;
+using Editor.Issue;
 using UnityEditor;
 
 namespace Editor.Analyzers.Asset.RecommendedRules
@@ -21,7 +22,7 @@ namespace Editor.Analyzers.Asset.RecommendedRules
                 var actual = (info.Length / 1024f / 1024f).ToString("F2");
                 issue = new AssetIssue<SceneAsset>(path)
                 {
-                    Type = AssetIssueType.Warning,
+                    Type = IssueType.Warning,
                     Message = $"The file size exceeds the recommended limit of {expected} MB. Actual: {actual} MB"
                 };
                 return true;

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using Editor.Analyzers.Asset.Extensions;
+using Editor.Issue;
 using Microsoft.Extensions.DependencyInjection;
 using UnityEditor;
 using UnityEngine.UIElements;
@@ -13,13 +14,10 @@ namespace Editor.Analyzers.Asset
     public class AssetAnalyzer : IAnalyzer
     {
         private const string ROW_UXML_GUID = "260ea58151f34b09b9f2c51c198d96e1";
-        private const string HEADER_UXML_GUID = "2f7c085e117c42ac99abfa2f7613b201";
-        private const string STYLE_SHEET_GUID = "ce5902e5af4941fcacb06882d1d2e24e";
 
-        private readonly ReadOnlyCollection<IAssetRule> _rules;
+        private readonly IAssetRule[] _rules;
         private readonly List<IAssetIssue<Object>> _issues;
         private readonly VisualTreeAsset _rowTemplate;
-        private readonly VisualTreeAsset _headerTemplate;
 
         public int IssueCount => _issues.Count;
 
@@ -30,26 +28,20 @@ namespace Editor.Analyzers.Asset
             _issues = new List<IAssetIssue<Object>>();
 
             AllAssetImporter.AssetPathsChanged += AllAssetImporterOnAssetPathsChanged;
-            var instances = TypeCache.GetTypesDerivedFrom<IAssetRule>()
+            var assetRules = TypeCache.GetTypesDerivedFrom<IAssetRule>();
+            _rules = assetRules
                 .Where(x => !x.IsAbstract)
                 .Select(x => ActivatorUtilities.CreateInstance(serviceProvider, x))
                 .Cast<IAssetRule>()
                 .ToArray();
-            _rules = Array.AsReadOnly(instances);
 
             var rowTemplatePath = AssetDatabase.GUIDToAssetPath(ROW_UXML_GUID);
             _rowTemplate = AssetDatabase.LoadAssetAtPath<VisualTreeAsset>(rowTemplatePath);
 
-            var headerTemplatePath = AssetDatabase.GUIDToAssetPath(HEADER_UXML_GUID);
-            _headerTemplate = AssetDatabase.LoadAssetAtPath<VisualTreeAsset>(headerTemplatePath);
-
             RootElement = new ScrollView(ScrollViewMode.Vertical)
             {
-                name = "project-issues"
+                name = "asset-issues"
             };
-            var stylesheetPath = AssetDatabase.GUIDToAssetPath(STYLE_SHEET_GUID);
-            var stylesheet = AssetDatabase.LoadAssetAtPath<StyleSheet>(stylesheetPath);
-            RootElement.styleSheets.Add(stylesheet);
         }
 
         private void AllAssetImporterOnAssetPathsChanged(object sender, string[] assetPaths)
@@ -79,45 +71,32 @@ namespace Editor.Analyzers.Asset
                     }
                 }
             }
+            UpdateUI();
         }
 
         public void Update()
         {
+            var assetPaths = AssetDatabase.GetAllAssetPaths()
+                .Where(AllAssetImporter.IsProjectAssetAndNotAFolder)
+                .OrderBy(x => x)
+                .ToArray();
+            AnalyzeAssets(assetPaths);
+        }
+
+        private void UpdateUI()
+        {
             if (RootElement != null)
             {
-                var assetPaths = AssetDatabase.GetAllAssetPaths()
-                    .Where(AllAssetImporter.IsProjectAssetAndNotAFolder)
-                    .OrderBy(x => x)
-                    .ToArray();
-                AnalyzeAssets(assetPaths);
-
                 RootElement.Clear();
 
                 var groups = _issues.GroupBy(x => x.Type).OrderBy(x => (int) x.Key).ToArray();
 
                 foreach (var group in groups)
                 {
-                    var items = group.ToArray();
+                    var items = @group.OrderBy(x => x.AssetType.Name).ThenBy(x => x.AssetPath).ToArray();
                     var container = new VisualElement();
 
-                    var header = _headerTemplate.CloneTree();
-                    var image = header.Q<Image>("icon");
-                    var heading = header.Q<Button>("heading");
-
-                    image.image = group.Key.ToIcon();
-                    heading.text = $"{group.Key.ToString()} ({items.Length.ToString()})";
-                    heading.clickable = new Clickable(() =>
-                    {
-                        if (container.GetClasses().Contains("is-hidden"))
-                        {
-                            container.RemoveFromClassList("is-hidden");
-                        }
-                        else
-                        {
-                            container.AddToClassList("is-hidden");
-                        }
-                    });
-
+                    var header = IssueUIUtility.GetHeader(group.Key, items.Length, container);
                     RootElement.Add(header);
                     RootElement.Add(container);
 
