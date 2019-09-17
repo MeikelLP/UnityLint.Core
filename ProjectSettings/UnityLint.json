@@ -1,7 +1,0 @@
-{
-  "AnalyzerSettings": {
-    "Editor.Analyzers.Asset.AssetAnalyzerSettings, UnityLint.Analyzers.Asset.RecommendedRules, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null": {
-      "maxFileSize": 2097152
-    }
-  }
-}
