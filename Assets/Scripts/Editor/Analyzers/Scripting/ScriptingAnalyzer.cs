@@ -128,6 +128,11 @@ namespace Editor.Analyzers.Scripting
 
         private async Task LoadMessagesAsync()
         {
+            if (!Directory.Exists(LogDirectory))
+            {
+                ScriptAssemblies = Array.Empty<(string File, CompilerMessage[] Messages)>();
+                return;
+            }
             var files = Directory.GetFiles(LogDirectory, "*" + LOG_FILE_EXTENSIONS);
             var jsons = await GetJsons<CompilerMessage[]>(files);
             ScriptAssemblies = new (string File, CompilerMessage[] Messages)[jsons.Length];

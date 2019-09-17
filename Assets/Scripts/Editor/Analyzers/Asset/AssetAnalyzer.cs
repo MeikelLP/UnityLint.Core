@@ -56,9 +56,7 @@ namespace Editor.Analyzers.Asset
             {
                 var baseType = rule.GetType().BaseType;
                 // ReSharper disable once PossibleNullReferenceException
-                var typeFilter = baseType.IsGenericType ?
-                    baseType.GetGenericArguments()[0] :
-                    typeof(Object);
+                var typeFilter = baseType.IsGenericType ? baseType.GetGenericArguments()[0] : typeof(Object);
 
                 foreach (var path in assetPaths)
                 {
@@ -71,6 +69,7 @@ namespace Editor.Analyzers.Asset
                     }
                 }
             }
+
             UpdateUI();
         }
 
@@ -81,6 +80,12 @@ namespace Editor.Analyzers.Asset
                 .OrderBy(x => x)
                 .ToArray();
             AnalyzeAssets(assetPaths);
+        }
+
+        public T GetRule<T>()
+            where T : IAssetRule
+        {
+            return (T) _rules.Single(x => x is T);
         }
 
         private void UpdateUI()

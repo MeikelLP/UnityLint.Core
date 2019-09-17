@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using Editor.Extensions;
 using Editor.UI;
 using Newtonsoft.Json;
@@ -110,11 +111,14 @@ namespace Editor
         [SettingsProvider]
         public static SettingsProvider CreateProvider()
         {
+            var stylesheetPath = AssetDatabase.GUIDToAssetPath(LintWindow.MAIN_STYLES);
+            var stylesheet = AssetDatabase.LoadAssetAtPath<StyleSheet>(stylesheetPath);
             var provider = new SettingsProvider("Project/UnityLint", SettingsScope.Project)
             {
                 label = "UnityLint",
                 activateHandler = (searchContext, rootElement) =>
                 {
+                    rootElement.styleSheets.Add(stylesheet);
                     var properties = new VisualElement
                     {
                         style =
@@ -134,6 +138,13 @@ namespace Editor
                         properties.Add(label);
                         foreach (var fieldInfo in value.GetType().GetFields())
                         {
+                            var header = fieldInfo.GetCustomAttribute<HeaderAttribute>();
+                            if (header != null)
+                            {
+                                var lblHeader = new Label(header.header);
+                                lblHeader.style.unityFontStyleAndWeight = new StyleEnum<FontStyle>(FontStyle.Bold);
+                                properties.Add(lblHeader);
+                            }
                             var field = UIUtility.GetField(value, fieldInfo);
                             properties.Add(field);
                         }

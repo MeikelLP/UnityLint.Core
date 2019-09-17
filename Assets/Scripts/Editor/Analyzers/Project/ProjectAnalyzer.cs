@@ -72,7 +72,6 @@ namespace Editor.Analyzers.Project
                 _isWaiting = true;
                 Task.Run(WaitForUpdateAsync);
             }
-
         }
 
         private async Task WaitForUpdateAsync()
@@ -102,6 +101,12 @@ namespace Editor.Analyzers.Project
             _issues.AddRange(issues);
 
             UpdateUI();
+        }
+
+        public T GetRule<T>()
+            where T : IProjectRule
+        {
+            return (T) _rules.SingleOrDefault(x => x is T);
         }
 
         private void UpdateUI()

@@ -8,8 +8,8 @@ namespace Editor.UI
 {
     public class LintWindow : EditorWindow
     {
+        public const string MAIN_STYLES = "470daf9a6c8a22f4bb4446654b5ffb8e";
         private const string MAIN_UXML = "bf1be80a2b3784446af4c393ce07c6e7";
-        private const string MAIN_STYLES = "470daf9a6c8a22f4bb4446654b5ffb8e";
         private static LintWindow _window;
         private int sidebarIndex = 0;
         private VisualElement _sidebar;

@@ -1,3 +1,4 @@
+using System;
 using System.IO;
 using Editor.Issue;
 using UnityEditor;
@@ -16,9 +17,9 @@ namespace Editor.Analyzers.Asset.RecommendedRules
         public override bool HasIssue(string path, out AssetIssue<SceneAsset> issue)
         {
             var info = new FileInfo(path);
-            if (info.Length > _settings.maxFileSize)
+            if (info.Length > _settings.MaxFileSize)
             {
-                var expected = (_settings.maxFileSize / 1024f / 1024f).ToString("F2");
+                var expected = (_settings.MaxFileSize / 1024f / 1024f).ToString("F2");
                 var actual = (info.Length / 1024f / 1024f).ToString("F2");
                 issue = new AssetIssue<SceneAsset>(path)
                 {
