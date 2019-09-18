@@ -10,7 +10,7 @@ namespace Editor
     [InitializeOnLoad]
     public static class LintingEngine
     {
-        public static IAnalyzer[] Analyzers { get; }
+        public static IAnalyzer[] Analyzers { private set; get; }
         private static readonly ConcurrentQueue<Action> TaskQueue;
         private static readonly ServiceProvider Provider;
 
@@ -36,7 +36,6 @@ namespace Editor
             }
 
             Provider = services.BuildServiceProvider();
-
             var analyzerTypes = TypeCache.GetTypesDerivedFrom<IAnalyzer>().OrderBy(x => x.Name);
             Analyzers = analyzerTypes
                 .Select(t => ActivatorUtilities.CreateInstance(Provider, t))
@@ -44,6 +43,11 @@ namespace Editor
                 .ToArray();
 
             EditorApplication.update += Update;
+
+            foreach (var analyzer in Analyzers)
+            {
+                TaskQueue.Enqueue(() => analyzer.Initialize());
+            }
         }
 
         private static void Update()
@@ -52,7 +56,14 @@ namespace Editor
             {
                 while (TaskQueue.TryDequeue(out var action))
                 {
-                    action.Invoke();
+                    try
+                    {
+                        action.Invoke();
+                    }
+                    catch (Exception e)
+                    {
+                        Debug.LogException(e);
+                    }
                 }
             }
         }

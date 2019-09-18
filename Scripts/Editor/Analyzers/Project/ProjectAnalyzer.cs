@@ -18,14 +18,14 @@ namespace Editor.Analyzers.Project
         private readonly IServiceProvider _provider;
         private readonly List<IIssue> _issues;
         private readonly IProjectRule[] _rules;
-        private readonly VisualTreeAsset _rowTemplate;
+        private VisualTreeAsset _rowTemplate;
         private readonly FileSystemWatcher _fileSystemWatcher;
 
         private DateTime _latestUpdate;
         private bool _isWaiting;
 
         public int IssueCount => _issues.Count;
-        public VisualElement RootElement { get; }
+        public VisualElement RootElement { get; private set; }
 
         public ProjectAnalyzer(IServiceProvider provider)
         {
@@ -47,6 +47,10 @@ namespace Editor.Analyzers.Project
                 .Select(x => ActivatorUtilities.CreateInstance(provider, x))
                 .Cast<IProjectRule>()
                 .ToArray();
+        }
+
+        public void Initialize()
+        {
             var rowTemplatePath = AssetDatabase.GUIDToAssetPath(ROW_TEMPLATE_GUID);
             _rowTemplate = AssetDatabase.LoadAssetAtPath<VisualTreeAsset>(rowTemplatePath);
 

@@ -21,14 +21,14 @@ namespace Editor.Analyzers.Scripting
         private FileSystemWatcher _analyzersWatcher;
         private readonly FileSystemWatcher _packageManifestWatcher;
         private readonly FileSystemWatcher _rootWatcher;
-        private readonly CscUpdater _cscUpdater;
-        private readonly UnityCsprojUpdater _unityCsprojUpdater;
+        private CscUpdater _cscUpdater;
+        private UnityCsprojUpdater _unityCsprojUpdater;
         public event EventHandler<string[]> AnalyzersChanged;
 
         public (string File, CompilerMessage[] Messages)[] ScriptAssemblies { get; private set; }
         public string[] AnalyzerAssemblies { get; private set; }
         public int IssueCount => ScriptAssemblies.Sum(x => x.Messages.Length);
-        public VisualElement RootElement { get; }
+        public VisualElement RootElement { get; private set; }
 
         public string UnityCodeAnalysisPackagePath
         {
@@ -66,14 +66,19 @@ namespace Editor.Analyzers.Scripting
             _packageManifestWatcher.Changed += AnalyzersWatcherOnUpdate;
 
             ToggleAnalyzersWatcher(Directory.Exists(ANALYZERS_DIR));
+
             _cscUpdater = new CscUpdater(this);
             _unityCsprojUpdater = new UnityCsprojUpdater(this);
+
+            ScanForAnalyzers();
+        }
+
+        public void Initialize()
+        {
 
             var uxmlPath = AssetDatabase.GUIDToAssetPath("acdfad26f5084a85addd60860e6e78d3");
             var uxml = AssetDatabase.LoadAssetAtPath<VisualTreeAsset>(uxmlPath);
             RootElement = uxml.CloneTree();
-
-            ScanForAnalyzers();
         }
 
         private void ToggleAnalyzersWatcher(bool toggle)

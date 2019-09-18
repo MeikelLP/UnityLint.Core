@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using UnityEditor;
+using UnityEngine;
 using UnityEngine.Assertions;
 
 namespace Editor.Analyzers.Asset
@@ -55,7 +56,14 @@ namespace Editor.Analyzers.Asset
 
             // apply
             AssetPaths = list.ToArray();
-            AssetPathsChanged?.Invoke(null, AssetPaths);
+            try
+            {
+                AssetPathsChanged?.Invoke(null, AssetPaths);
+            }
+            catch (Exception e)
+            {
+                Debug.LogException(e);
+            }
         }
 
         public static bool IsProjectAssetAndNotAFolder(string path)

@@ -17,11 +17,11 @@ namespace Editor.Analyzers.Asset
 
         private readonly IAssetRule[] _rules;
         private readonly List<IAssetIssue<Object>> _issues;
-        private readonly VisualTreeAsset _rowTemplate;
+        private VisualTreeAsset _rowTemplate;
 
         public int IssueCount => _issues.Count;
 
-        public VisualElement RootElement { get; }
+        public VisualElement RootElement { get; private set; }
 
         public AssetAnalyzer(IServiceProvider serviceProvider)
         {
@@ -34,7 +34,10 @@ namespace Editor.Analyzers.Asset
                 .Select(x => ActivatorUtilities.CreateInstance(serviceProvider, x))
                 .Cast<IAssetRule>()
                 .ToArray();
+        }
 
+        public void Initialize()
+        {
             var rowTemplatePath = AssetDatabase.GUIDToAssetPath(ROW_UXML_GUID);
             _rowTemplate = AssetDatabase.LoadAssetAtPath<VisualTreeAsset>(rowTemplatePath);
 

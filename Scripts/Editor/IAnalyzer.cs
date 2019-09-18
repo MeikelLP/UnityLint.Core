@@ -8,5 +8,6 @@ namespace Editor
         int IssueCount { get; }
         VisualElement RootElement { get; }
         void Update();
+        void Initialize();
     }
 }
