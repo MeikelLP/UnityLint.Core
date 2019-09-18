@@ -1,0 +1,20 @@
+{
+  "name": "@unity-lint/asset-analyzer",
+  "version": "0.0.1",
+  "description": "Asset analyzer for UnityLint",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/MeikelLP/UnityLint.Core.git"
+  },
+  "keywords": [
+    "unity",
+    "lint",
+    "csharp"
+  ],
+  "author": "Meikel Philipp",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/MeikelLP/UnityLint.Core/issues"
+  },
+  "homepage": "https://github.com/MeikelLP/UnityLint.Core#readme"
+}
