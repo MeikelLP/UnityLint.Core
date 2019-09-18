@@ -1,14 +1,15 @@
 {
-  "name": "com.unity-lint.analyzers.asset",
-  "displayName": "UnityLint - Asset Analyzer",
+  "name": "com.unity-lint.analyzers.asset.recommended",
+  "displayName": "UnityLint - Asset Analyzer Recommended Rules",
   "version": "0.0.1",
-  "description": "Asset analyzer for UnityLint",
+  "description": "Recommended rules for the asset analyzer.",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/MeikelLP/UnityLint.Core.git"
   },
   "dependencies": {
-    "com.unity-lint.core": "0.0.3"
+    "com.unity-lint.core": "0.0.3",
+    "com.unity-lint.analyzers.asset": "0.0.1"
   },
   "keywords": [
     "unity",
