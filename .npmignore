@@ -1,0 +1,8 @@
+.gitattributes
+
+TestAssets/
+TestAssets.meta
+Testing/
+Testing.meta
+Scripts/Editor/Analyzers/
+Scripts/Editor/Analyzers.meta

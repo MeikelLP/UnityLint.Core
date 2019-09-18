@@ -1,16 +1,24 @@
 {
-  "name": "me.meikellp.unity-lint",
+  "name": "com.unity-lint.core",
   "displayName": "UnityLint",
-  "version": "0.0.1-preview",
-  "unity": "2019.3",
+  "version": "0.0.2",
   "description": "Analyze your project and make it long-time maintainable.",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/MeikelLP/UnityLint.Core.git"
+  },
   "dependencies": {
-    "com.unity.code-analysis": "0.1.0-preview.2",
     "com.unity.nuget.newtonsoft-json": "1.0.0-preview.3"
   },
-  "author": {
-    "name": "Meikel Philipp",
-    "email": "meikel.philipp@neos-it.de",
-    "url": "https://github.com/MeikelLP/UnityLint"
-  }
+  "keywords": [
+    "unity",
+    "linter",
+    "csharp"
+  ],
+  "author": "Meikel Philipp",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/MeikelLP/UnityLint.Core/issues"
+  },
+  "homepage": "https://github.com/MeikelLP/UnityLint.Core#readme"
 }
