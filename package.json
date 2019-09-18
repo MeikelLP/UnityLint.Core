@@ -1,7 +1,7 @@
 {
   "name": "com.unity-lint.core",
   "displayName": "UnityLint",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "description": "Analyze your project and make it long-time maintainable.",
   "repository": {
     "type": "git",

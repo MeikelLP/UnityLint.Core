@@ -1,14 +1,14 @@
 {
   "name": "com.unity-lint.analyzers.asset",
   "displayName": "UnityLint - Asset Analyzer",
-  "version": "0.0.1",
+  "version": "0.0.4",
   "description": "Asset analyzer for UnityLint",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/MeikelLP/UnityLint.Core.git"
   },
   "dependencies": {
-    "com.unity-lint.core": "0.0.3"
+    "com.unity-lint.core": "0.0.4"
   },
   "keywords": [
     "unity",

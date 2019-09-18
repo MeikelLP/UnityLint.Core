@@ -1,8 +1,28 @@
 image: node:latest
 
-publish:
+stages:
+- publish
+
+before_script:
+  - echo '//registry.npmjs.org/:_authToken=${NPM_TOKEN}'>.npmrc
+
+publish-core:
+  stage: publish
   only:
     - tags
   script:
-    - echo '//registry.npmjs.org/:_authToken=${NPM_TOKEN}'>.npmrc
-    - npm publish
+    - npm publish --access public ./
+
+publish-asset-analyzer:
+  stage: publish
+  only:
+    - tags
+  script:
+    - npm publish --access public ./Scripts/Editor/Analyzers/Asset/
+
+publish-asset-analyzer-rules:
+  stage: publish
+  only:
+    - tags
+  script:
+    - npm publish --access public ./Scripts/Editor/Analyzers/Asset.RecommendedRules/
