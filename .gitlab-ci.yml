@@ -4,7 +4,8 @@ stages:
 - publish
 
 before_script:
-  - npm set //registry.npmjs.org/:_authToken $NPM_TOKEN
+  - npm install -g npm-login-cmd
+  - npx npm-login-cmd
 
 publish-core:
   stage: publish
