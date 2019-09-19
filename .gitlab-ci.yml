@@ -4,7 +4,7 @@ stages:
 - publish
 
 before_script:
-  - echo "//registry.npmjs.org/:_authToken=${NPM_TOKEN}" > .npmrc
+  - npm set //registry.npmjs.org/:_authToken $NPM_TOKEN
 
 publish-core:
   stage: publish
