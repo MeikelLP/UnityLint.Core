@@ -1,5 +1,5 @@
 {
-    "name": "ProjecTests",
+    "name": "Asset.RecommendedRules.Tests",
     "references": [
         "UnityEngine.TestRunner",
         "UnityEditor.TestRunner",

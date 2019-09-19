@@ -1,9 +1,7 @@
-using Editor.Analyzers.Asset;
-using Editor.Analyzers.Asset.RecommendedRules;
 using NUnit.Framework;
 using UnityEngine;
 
-namespace Editor.Analyzers.Project.Tests
+namespace Editor.Analyzers.Asset.RecommendedRules.Tests
 {
     public class NamingConventionsRuleTest
     {
