@@ -85,7 +85,7 @@ namespace Editor.Analyzers.Project
                 await Task.Delay(DELAY_MILLIS);
             } while (DateTime.Now < _latestUpdate.AddMilliseconds(DELAY_MILLIS));
 
-            LintingEngine.EnqueueOnUnityThread(Update);
+            UnityUtility.EnqueueOnUnityThread(Update);
             _isWaiting = false;
         }
 

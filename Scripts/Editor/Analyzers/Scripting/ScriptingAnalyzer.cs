@@ -127,8 +127,8 @@ namespace Editor.Analyzers.Scripting
 
         private void AnalyzersWatcherOnUpdate(object sender, FileSystemEventArgs e)
         {
-            LintingEngine.EnqueueOnUnityThread(ScanForAnalyzers);
-            LintingEngine.EnqueueOnUnityThread(CompilationPipeline.RequestScriptCompilation);
+            UnityUtility.EnqueueOnUnityThread(ScanForAnalyzers);
+            UnityUtility.EnqueueOnUnityThread(CompilationPipeline.RequestScriptCompilation);
         }
 
         private async Task LoadMessagesAsync()

@@ -30,7 +30,8 @@ namespace Editor.Issue
 
         public static VisualElement GetHeader(IssueType type, int length, VisualElement container)
         {
-            var header = HeaderTemplate.CloneTree();
+            var header = HeaderTemplate.CloneTree()[0];
+            header.name = $"header-{type}";
             var image = header.Q<Image>("icon");
             var heading = header.Q<Button>("heading");
 

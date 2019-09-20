@@ -1,3 +1,4 @@
+using System;
 using System.ComponentModel;
 using System.Reflection;
 using UnityEditor;
@@ -28,8 +29,26 @@ namespace Editor.UI
             _window.Show();
         }
 
+        private void OnDisable()
+        {
+            LintingEngine.AnalyzerUpdated -= LintingEngineOnAnalyzerUpdated;
+        }
+
+        private void LintingEngineOnAnalyzerUpdated(object sender, IAnalyzer e)
+        {
+            UpdateSidebarIssueCount(e);
+        }
+
         private void OnEnable()
         {
+            if (!LintingEngine.Initialized)
+            {
+                // weird bug in 2019.3 causes this to be called before InitializeOnLoad
+                UnityUtility.EnqueueOnUnityThread(OnEnable);
+                return;
+            }
+            LintingEngine.AnalyzerUpdated += LintingEngineOnAnalyzerUpdated;
+
             var uxmlPath = AssetDatabase.GUIDToAssetPath(MAIN_UXML);
             var uxml = AssetDatabase.LoadAssetAtPath<VisualTreeAsset>(uxmlPath);
             uxml.CloneTree(rootVisualElement);
@@ -45,30 +64,38 @@ namespace Editor.UI
             {
                 for (var i = 0; i < LintingEngine.Analyzers.Length; i++)
                 {
-                    LintingEngine.Analyzers[i].Update();
-                    RefreshSidebar(i);
+                    var analyzer = LintingEngine.Analyzers[i];
+                    LintingEngine.UpdateAnalyzer(analyzer);
+                    ToggleSidebar(i);
                 }
             });
 
             for (var i = 0; i < LintingEngine.Analyzers.Length; i++)
             {
                 var analyzer = LintingEngine.Analyzers[i];
-                var displayName = analyzer.GetType().GetCustomAttribute<DisplayNameAttribute>()?.DisplayName ??
-                                  analyzer.GetType().Name.Replace("Analyzer", "");
-                analyzer.Update();
                 var localIndex = i;
                 var button = new Button
                 {
-                    text = $"{displayName} ({analyzer.IssueCount.ToString()})",
-                    clickable = new Clickable(() => RefreshSidebar(localIndex))
+                    name = $"sidebar-{analyzer.GetType().Name}",
+                    clickable = new Clickable(() => ToggleSidebar(localIndex))
                 };
                 _sidebar.Add(button);
+                UpdateSidebarIssueCount(analyzer);
             }
 
-            RefreshSidebar(sidebarIndex);
+            ToggleSidebar(sidebarIndex);
         }
 
-        private void RefreshSidebar(int index)
+        private void UpdateSidebarIssueCount(IAnalyzer analyzer)
+        {
+            var displayName = analyzer.GetType().GetCustomAttribute<DisplayNameAttribute>()?.DisplayName ??
+                              analyzer.GetType().Name.Replace("Analyzer", "");
+            var button = _sidebar.Q<Button>($"sidebar-{analyzer.GetType().Name}");
+
+            button.text = $"{displayName} ({analyzer.IssueCount.ToString()})";
+        }
+
+        private void ToggleSidebar(int index)
         {
             var analyzer = LintingEngine.Analyzers[index];
             var sidebarButtons = _sidebar.Query<Button>().ToList();
@@ -82,16 +109,10 @@ namespace Editor.UI
                     sidebarButton.AddToClassList("is-active");
                 }
             }
-            var displayName = analyzer.GetType().GetCustomAttribute<DisplayNameAttribute>()?.DisplayName ??
-                              analyzer.GetType().Name.Replace("Analyzer", "");
-
-            sidebarButtons[index].text = $"{displayName} ({analyzer.IssueCount.ToString()})";
 
             _main.Clear();
 
-            var elem = analyzer.RootElement;
-            _main.Add(elem);
-            analyzer.Update();
+            _main.Add(analyzer.RootElement);
         }
     }
 }
